@@ -1,4 +1,4 @@
-import { BookInput } from "../types/BookInput";
+import { BookInput } from "../types/book/BookInput";
 import { ErrorResponse } from "../types/ErrorResponse";
 
 export function createBookInputValidator(bookInput: BookInput): ErrorResponse[] {

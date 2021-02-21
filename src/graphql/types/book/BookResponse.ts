@@ -1,6 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
-import { Book } from "../../entity/Book";
-import { ErrorResponse } from "./ErrorResponse";
+import { Book } from "../../../entity/Book";
+import { ErrorResponse } from "../ErrorResponse";
 
 @ObjectType()
 export class BookResponse {

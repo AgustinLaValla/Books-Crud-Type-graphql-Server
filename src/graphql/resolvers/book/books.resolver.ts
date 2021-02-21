@@ -1,12 +1,14 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
-import { Book } from "../../entity/Book";
-import { BookInput } from '../types/BookInput';
-import { BookResponse } from "../types/BookResponse";
-import { ErrorResponse } from "../types/ErrorResponse";
-import { SuccessResponse } from "../types/SuccessResponse";
-import { UpdateBookInput } from "../types/UpdateBookInput";
-import { createBookInputValidator } from "../utils/createBookInputValidator";
-import { internalServerErrorMessage } from "../utils/internalServerError";
+import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Book } from "../../../entity/Book";
+import { BookInput } from '../../types/book/BookInput';
+import { BookResponse } from "../../types/book/BookResponse";
+import { ErrorResponse } from "../../types/ErrorResponse";
+import { SuccessResponse } from "../../types/SuccessResponse";
+import { UpdateBookInput } from "../../types/book/UpdateBookInput";
+import { createBookInputValidator } from "../../utils/createBookInputValidator";
+import { internalServerErrorMessage } from "../../utils/internalServerError";
+import { isAuth } from "../../utils/token";
+import { customErrorMessage } from "../../utils/customErrorMessage";
 
 @Resolver()
 export class BookResolver {
@@ -26,7 +28,13 @@ export class BookResolver {
     }
 
     @Mutation(() => BookResponse)
-    async cretaeBook(@Arg('bookInput') bookInput: BookInput): Promise<BookResponse> {
+    async cretaeBook(
+        @Arg('bookInput') bookInput: BookInput,
+        @Ctx() ctx: any
+    ): Promise<BookResponse> {
+        const { error } = isAuth(ctx);
+        if (error) return { error }
+
         const errors = createBookInputValidator(bookInput);
         if (errors.length) return { error: errors };
 
@@ -43,7 +51,13 @@ export class BookResolver {
     }
 
     @Mutation(() => SuccessResponse)
-    async updateBook(@Arg('updateBookInput') updateBookInput: UpdateBookInput): Promise<SuccessResponse> {
+    async updateBook(
+        @Arg('updateBookInput') updateBookInput: UpdateBookInput,
+        @Ctx() ctx: any
+    ): Promise<SuccessResponse> {
+        const { error } = isAuth(ctx);
+        if (error) return { error }
+
         const { id, isPublished } = updateBookInput;
         try {
             await Book.update({ id }, { isPublished });
@@ -54,7 +68,13 @@ export class BookResolver {
     }
 
     @Mutation(() => SuccessResponse)
-    async removeBook(@Arg('id') id: number): Promise<SuccessResponse> {
+    async removeBook(
+        @Arg('id') id: number,
+        @Ctx() ctx: any
+    ): Promise<SuccessResponse> {
+        const { error } = isAuth(ctx);
+        if (error) return { error };
+        
         try {
             await Book.delete({ id });
             return { message: 'Book Successfully Deleted' }
